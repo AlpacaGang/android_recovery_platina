@@ -1,6 +1,8 @@
 #
 # Copyright 2017 The Android Open Source Project
 #
+# Copyright (C) 2018-2019 OrangeFox Recovery Project
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -13,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 # This contains the module build definitions for the hardware-specific
 # components for this device.
 #
@@ -22,6 +23,9 @@
 # bitrot and build breakages. Building a component unconditionally does
 # *not* include it on all devices, so it is safe even with hardware-specific
 # components.
+#
+
+LOCAL_PATH := device/xiaomi/platina
 
 # Architecture
 TARGET_ARCH := arm64
@@ -61,7 +65,20 @@ BOARD_KERNEL_BASE := 0x00000000
 BOARD_KERNEL_PAGESIZE := 4096
 BOARD_KERNEL_TAGS_OFFSET := 0x00000100
 BOARD_RAMDISK_OFFSET     := 0x01000000
-TARGET_PREBUILT_KERNEL := device/xiaomi/platina/prebuilt/Image.gz-dtb
+
+ifeq ($(FOX_BUILD_FULL_KERNEL_SOURCES),1)
+TARGET_KERNEL_APPEND_DTB := true
+BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
+TARGET_KERNEL_CONFIG := platina-perf_defconfig
+TARGET_KERNEL_SOURCE := kernel/xiaomi/platina
+else
+TARGET_PREBUILT_KERNEL := $(LOCAL_PATH)/prebuilt/Image.gz-dtb
+ifeq ($(FOX_USE_STOCK_KERNEL),1)
+TARGET_PREBUILT_KERNEL := $(LOCAL_PATH)/prebuilt/Image-stock.gz-dtb
+endif
+PRODUCT_COPY_FILES += \
+    $(TARGET_PREBUILT_KERNEL):kernel
+endif
 
 # Platform
 TARGET_BOARD_PLATFORM := sdm660
@@ -97,19 +114,23 @@ TARGET_RECOVERY_QCOM_RTC_FIX := true
 TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
 TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_EXTRA_LANGUAGES := true
-#TW_HAS_EDL_MODE := true
 TW_INCLUDE_NTFS_3G := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
-TW_MAX_BRIGHTNESS := 255
 TW_THEME := portrait_hdpi
 TW_SCREEN_BLANK_ON_BOOT := true
-# TW_USE_TOOLBOX := true
 
 # exFAT FS Support
 TW_INCLUDE_FUSE_EXFAT := true
 
 # NTFS Support
 TW_INCLUDE_FUSE_NTFS := true
+TW_DEFAULT_LANGUAGE := en
 
-# Official
-BR_OFFICIAL := true
+#TW_MAX_BRIGHTNESS := 255
+#ifeq ($(FOX_USE_STOCK_KERNEL),1)
+TW_DEFAULT_BRIGHTNESS := 1250
+TW_MAX_BRIGHTNESS := 4095
+#endif
+
+PLATFORM_SECURITY_PATCH := 2099-12-31
+#
