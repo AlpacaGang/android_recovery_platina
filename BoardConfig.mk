@@ -1,7 +1,7 @@
 #
 # Copyright 2017 The Android Open Source Project
 #
-# Copyright (C) 2018-2019 OrangeFox Recovery Project
+# Copyright (C) 2019-2020 OrangeFox Recovery Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ TARGET_CPU_ABI2 :=
 TARGET_CPU_VARIANT := kryo
 
 TARGET_2ND_ARCH := arm
-TARGET_2ND_ARCH_VARIANT := armv7-a-neon
+TARGET_2ND_ARCH_VARIANT := armv8-a
 TARGET_2ND_CPU_ABI := armeabi-v7a
 TARGET_2ND_CPU_ABI2 := armeabi
 TARGET_2ND_CPU_VARIANT := cortex-a73
@@ -52,7 +52,16 @@ TARGET_KEYMASTER_WAIT_FOR_QSEE := true
 TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_FBE := true
 TW_INCLUDE_CRYPTO_FBE := true
-# TARGET_CRYPTFS_HW_PATH := vendor/qcom/opensource/commonsys/cryptfs_hw
+TARGET_CRYPTFS_HW_PATH := vendor/qcom/opensource/commonsys/cryptfs_hw
+
+# Fix userdata decryption (vold)
+#TW_CRYPTO_SYSTEM_VOLD_MOUNT := vendor cust odm
+TW_CRYPTO_SYSTEM_VOLD_MOUNT := vendor system
+TW_CRYPTO_USE_SYSTEM_VOLD := \
+    qseecomd \
+    servicemanager \
+    hwservicemanager \
+    keymaster-3-0
 
 # Kernel
 BOARD_KERNEL_CMDLINE := console=ttyMSM0,115200,n8 androidboot.console=ttyMSM0 earlycon=msm_serial_dm,0xc170000
@@ -69,7 +78,7 @@ BOARD_RAMDISK_OFFSET     := 0x01000000
 ifeq ($(FOX_BUILD_FULL_KERNEL_SOURCES),1)
 TARGET_KERNEL_APPEND_DTB := true
 BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
-TARGET_KERNEL_CONFIG := platina-perf_defconfig
+TARGET_KERNEL_CONFIG := platina_fox_defconfig
 TARGET_KERNEL_SOURCE := kernel/xiaomi/platina
 else
 TARGET_PREBUILT_KERNEL := $(LOCAL_PATH)/prebuilt/Image.gz-dtb
@@ -114,6 +123,7 @@ TARGET_RECOVERY_QCOM_RTC_FIX := true
 TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
 TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_EXTRA_LANGUAGES := true
+TW_DEFAULT_LANGUAGE := en
 TW_INCLUDE_NTFS_3G := true
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TW_THEME := portrait_hdpi
@@ -124,13 +134,11 @@ TW_INCLUDE_FUSE_EXFAT := true
 
 # NTFS Support
 TW_INCLUDE_FUSE_NTFS := true
-TW_DEFAULT_LANGUAGE := en
 
-#TW_MAX_BRIGHTNESS := 255
-#ifeq ($(FOX_USE_STOCK_KERNEL),1)
 TW_DEFAULT_BRIGHTNESS := 1250
 TW_MAX_BRIGHTNESS := 4095
-#endif
 
 PLATFORM_SECURITY_PATCH := 2099-12-31
+TARGET_USES_LOGD := true
+LZMA_RAMDISK_TARGETS := recovery
 #
